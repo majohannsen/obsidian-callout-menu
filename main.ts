@@ -88,7 +88,7 @@ export default class CalloutMenuPlugin extends Plugin {
 
 
 		if (Platform.isDesktop) {
-			this.registerDomEvent(document, "mousedown", (e: MouseEvent) => {
+			this.registerDomEvent(window, "mousedown", (e: MouseEvent) => {
 				if (e.button == 2) {
 					let target = e.target as HTMLElement
 					const calloutEl = target.closest(".cm-callout")
@@ -102,7 +102,7 @@ export default class CalloutMenuPlugin extends Plugin {
 
 		if (Platform.isMobile) {
 			let timer: any;
-			this.registerDomEvent(document, "touchstart", (e: TouchEvent) => {
+			this.registerDomEvent(window, "touchstart", (e: TouchEvent) => {
 				let target = e.target as HTMLElement
 				const calloutEl = target.closest(".cm-callout")
 				if (calloutEl) {
@@ -112,7 +112,7 @@ export default class CalloutMenuPlugin extends Plugin {
 					}, 500);
 				}
 			});
-			this.registerDomEvent(document, "touchend", (e: TouchEvent) => {
+			this.registerDomEvent(window, "touchend", (e: TouchEvent) => {
 				clearTimeout(timer);
 			});
 		}

@@ -88,7 +88,7 @@ export default class CalloutMenuPlugin extends Plugin {
 
 
 		if (Platform.isDesktop) {
-			this.registerDomEvent(window, "mousedown", (e: MouseEvent) => {
+			this.registerDomEvent(window, "contextmenu", (e: MouseEvent) => {
 				if (e.button == 2) {
 					let target = e.target as HTMLElement
 					const calloutEl = target.closest(".cm-callout")

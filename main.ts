@@ -67,6 +67,26 @@ const LocaleMap: any = {
 		en: "Write a list of callout metadata types (separated by commas) that should appear in context menu.",
 		ru: "Введите список типов метаданных для выносных блоков, которые будут отображаться в контекстном меню (через запятую).",
 	},
+	copyContent: {
+		en: "Copy callout content",
+		ru: "Скопировать содержимое",
+	},
+	copyLinkText: {
+		en: "Copy link text",
+		ru: "Копировать текст ссылки",
+	},
+	copyLinkURL: {
+		en: "Copy link URL",
+		ru: "Копировать адрес ссылки",
+	},
+	copyLinkPath: {
+		en: "Copy link path",
+		ru: "Копировать адрес ссылки",
+	},
+	openInDefaultBrowser: {
+		en: "Open link in default browser",
+		ru: "Открыть ссылку в браузере по умолчанию",
+	}
 };
 
 interface CMSettings {
@@ -164,9 +184,11 @@ export default class CalloutMenuPlugin extends Plugin {
 	createCalloutMenu(e: Event) {
 		let target = e.target as HTMLElement
 		const calloutEl = target.closest(".cm-callout") as any
+		const callout = target.closest(".callout") as HTMLElement
+		const link = target.closest("a") as HTMLAnchorElement
 
 		
-		const callout = target.closest(".callout") as HTMLElement
+
 
 		const calloutNames = this.settings.types
 			.split(",")
@@ -247,8 +269,65 @@ export default class CalloutMenuPlugin extends Plugin {
 				target.click();
 			})
 		);
+		menu.addItem((item) =>
+			item.setTitle(this.getLocalStrings().copyContent).onClick(() => {
+				lines.shift()
+				let content = ""
+				for (const l of lines) {
+					const line = editor.getLine(l);
+					let newLine = line.replace(">", "");
+					newLine = newLine.replace(/^ /, "");
+					content += newLine + "\n"
+				}
+				content = content.trim()
+				navigator.clipboard.writeText(content)
+			})
+		);
 
 		menu.addSeparator();
+
+		if (link && link.className){
+
+			menu.addItem((item) =>
+				item.setTitle(this.getLocalStrings().copyLinkText).onClick(() => {
+					navigator.clipboard.writeText(link.innerText)
+				})
+			);
+
+			if (link.className.includes("external-link")) {		
+
+				menu.addItem((item) =>
+					item.setTitle(this.getLocalStrings().copyLinkURL).onClick(() => {
+						navigator.clipboard.writeText(link.href)
+					})
+				);
+				menu.addItem((item) =>
+					item.setTitle(this.getLocalStrings().openInDefaultBrowser).onClick(() => {
+						//@ts-ignore
+						let webviewer = this.app.internalPlugins.getEnabledPluginById("webviewer");
+						if (webviewer) {
+							webviewer.openUrlExternally(link.href)
+						} else {
+							window.open(link.href)
+						}
+					})
+				);
+			}
+
+			if (link.className.includes("internal-link")) {		
+				menu.addItem((item) =>
+					item.setTitle(this.getLocalStrings().copyLinkPath).onClick(() => {
+						let linkPath = link.getAttribute("data-href") || ""
+						navigator.clipboard.writeText(linkPath)
+					})
+				);
+			}
+			menu.addSeparator();
+		}
+
+		
+
+		
 
 		// Добавить или убрать сворачивание
 		if (calloutClasses.contains("is-collapsible") && fold == "-") {

@@ -61,19 +61,14 @@ export default class CalloutMenuPlugin extends Plugin {
 		
 
 		if (Platform.isMobile) {
-			let timer: any;
+		
 			this.registerDomEvent(window, "touchstart", (e: TouchEvent) => {
 				let target = e.target as HTMLElement
 				const calloutEl = target.closest(".cm-callout")
 				if (calloutEl) {
-					//timer = setTimeout(() => {
-						//timer = null;
-						this.createCalloutMenu(e)
-					//}, 500);
+					this.createCalloutMenu(e)
+					
 				}
-			});
-			this.registerDomEvent(window, "touchend", (e: TouchEvent) => {
-				clearTimeout(timer);
 			});
 		}
 
@@ -345,13 +340,14 @@ export default class CalloutMenuPlugin extends Plugin {
 
 		if (Platform.isMobile) {
 			for (const calloutName of calloutNames) {
-				menuManager.addItem((item) => {
+				menuManager.addItemAfter("type", (item) => {
 					const title =
 						calloutName[0].toUpperCase() +
 						calloutName
 							.slice(1, calloutName.length)
 							.replace("|", " | ");
 					item.setTitle(title)
+						.setSection("custom-type")
 						.onClick(() => {
 							calloutEl.cmView.widget.updateType(calloutName);
 						})
@@ -359,15 +355,18 @@ export default class CalloutMenuPlugin extends Plugin {
 				});
 			}
 
+			menuManager.addSeparator()
+
 			if (notExistingMetadata.length > 0) {
 				for (const metaName of notExistingMetadata) {
-					menuManager.addItem((item) => {
+					menuManager.addItemAfter("custom-type", (item) => {
 						const title =
 							metaName[0].toUpperCase() +
 							metaName
 								.slice(1, metaName.length)
 								.replace("|", " | ");
 						item.setTitle(title)
+							.setSection("custom-type-metadata")
 							.setIcon("plus")
 							.onClick(() => {
 								editor.setLine(
@@ -383,13 +382,14 @@ export default class CalloutMenuPlugin extends Plugin {
 
 			if (existingMetadata.length > 0) {
 				for (const metaName of existingMetadata) {
-					menuManager.addItem((item) => {
+					menuManager.addItemAfter("custom-type", (item) => {
 						const title =
 							metaName[0].toUpperCase() +
 							metaName
 								.slice(1, metaName.length)
 								.replace("|", " | ");
 						item.setTitle(title)
+							.setSection("custom-type-metadata")
 							.setIcon("minus")
 							.onClick(() => {
 								editor.setLine(
@@ -400,6 +400,16 @@ export default class CalloutMenuPlugin extends Plugin {
 					});
 				}
 			}
+
+
+
+
+
+
+
+
+
+
 		} else {
 			menuManager.addItemAfter("type",(item) => {
 				item.setTitle(i18n.t("calloutType"))

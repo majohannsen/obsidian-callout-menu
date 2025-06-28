@@ -105,6 +105,7 @@ export default class MenuManager {
 	 * Add a separator.
 	 */
 	addSeparator(): this {
+		
 		if (this.menu) {
 			this.menu.addSeparator();
 		} else {

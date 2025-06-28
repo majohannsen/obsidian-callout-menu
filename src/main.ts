@@ -7,87 +7,13 @@ import {
 	Setting,
 	Menu,
 	MenuItem,
-	Platform
+	Platform,
+	getLanguage,
 } from "obsidian";
+import MenuManager from 'src/MenuManager';
+import { i18n } from './localization';
 
-const LocaleMap: any = {
-	edit: {
-		en: "Edit",
-		ru: "Редактировать",
-	},
-	collapsed: {
-		en: "Collapsed by default",
-		ru: "Свёрнутый по умолчанию",
-	},
-	expanded: {
-		en: "Expanded by default",
-		ru: "Развёрнутый по умолчанию",
-	},
-	removeCollapsing: {
-		en: "Remove collapsing",
-		ru: "Убрать сворачивание",
-	},
-	calloutType: {
-		en: "Callout type",
-		ru: "Тип выносного блока",
-	},
-	other: {
-		en: "Other...",
-		ru: "Другие...",
-	},
-	calloutTypePlaceholder: {
-		en: "Callout type...",
-		ru: "Введите тип выносного блока...",
-	},
-	addMetadata: {
-		en: "Add callout metadata",
-		ru: "Добавить метаданные",
-	},
-	removeMetadata: {
-		en: "Remove callout metadata",
-		ru: "Удалить метаданные",
-	},
-	clearFormatting: {
-		en: "Clear formatting",
-		ru: "Очистить форматирование",
-	},
-	calloutTypes: {
-		en: "Callout types",
-		ru: "Типы выносных блоков",
-	},
-	calloutTypesDesc: {
-		en: "Write a list of callout types (separated by commas) that should appear in context menu.",
-		ru: "Введите список типов выносных блоков, которые будут отображаться в контекстном меню (через запятую).",
-	},
-	metadataTypes: {
-		en: "Callout metadata types",
-		ru: "Типы метаданных для выносных блоков",
-	},
-	metadataTypesDesc: {
-		en: "Write a list of callout metadata types (separated by commas) that should appear in context menu.",
-		ru: "Введите список типов метаданных для выносных блоков, которые будут отображаться в контекстном меню (через запятую).",
-	},
-	copyContent: {
-		en: "Copy callout content",
-		ru: "Скопировать содержимое",
-	},
-	copyLinkText: {
-		en: "Copy link text",
-		ru: "Копировать текст ссылки",
-	},
-	copyLinkURL: {
-		en: "Copy link URL",
-		ru: "Копировать адрес ссылки",
-	},
-	copyLinkPath: {
-		en: "Copy link path",
-		ru: "Копировать адрес ссылки",
-	},
-	openInDefaultBrowser: {
-		en: "Open link in default browser",
-		ru: "Открыть ссылку в браузере по умолчанию",
-	}
-};
+
 
 interface CMSettings {
 	types: string;
@@ -103,12 +29,23 @@ export default class CalloutMenuPlugin extends Plugin {
 	settings: CMSettings;
 
 	async onload() {
+
+		let locale = "en"
+		if (getLanguage) {
+			locale = getLanguage()
+		} else {
+			locale = window.localStorage.language
+		}
+		
+    	i18n.setLocale(locale);
+
 		await this.loadSettings();
 		this.addSettingTab(new CMSettingTab(this.app, this));
 
 
 		if (Platform.isDesktop) {
 			this.registerDomEvent(window, "contextmenu", (e: MouseEvent) => {
+				
 				if (e.button == 2) {
 					let target = e.target as HTMLElement
 					const calloutEl = target.closest(".cm-callout")
@@ -118,6 +55,9 @@ export default class CalloutMenuPlugin extends Plugin {
 				}
 			});
 		}
+
+
+		
 		
 
 		if (Platform.isMobile) {
@@ -126,16 +66,18 @@ export default class CalloutMenuPlugin extends Plugin {
 				let target = e.target as HTMLElement
 				const calloutEl = target.closest(".cm-callout")
 				if (calloutEl) {
-					timer = setTimeout(() => {
-						timer = null;
+					//timer = setTimeout(() => {
+						//timer = null;
 						this.createCalloutMenu(e)
-					}, 500);
+					//}, 500);
 				}
 			});
 			this.registerDomEvent(window, "touchend", (e: TouchEvent) => {
 				clearTimeout(timer);
 			});
 		}
+
+		
 	}
 
 	onunload() {}
@@ -183,12 +125,10 @@ export default class CalloutMenuPlugin extends Plugin {
 
 	createCalloutMenu(e: Event) {
 		let target = e.target as HTMLElement
+
 		const calloutEl = target.closest(".cm-callout") as any
-		const callout = target.closest(".callout") as HTMLElement
+		const callout = calloutEl.querySelector(".callout") as HTMLElement
 		const link = target.closest("a") as HTMLAnchorElement
-
-		
-
 
 		const calloutNames = this.settings.types
 			.split(",")
@@ -230,6 +170,10 @@ export default class CalloutMenuPlugin extends Plugin {
 
 		
 		const calloutClasses = callout.classList;
+
+		
+
+
 		const fold =
 			callout.getAttribute(
 				"data-callout-fold"
@@ -262,15 +206,23 @@ export default class CalloutMenuPlugin extends Plugin {
 				!calloutDef.includes("|" + m + "]")
 		);
 
-		const menu = new Menu();
 
-		menu.addItem((item) =>
-			item.setTitle(this.getLocalStrings().edit).onClick(() => {
-				target.click();
-			})
-		);
-		menu.addItem((item) =>
-			item.setTitle(this.getLocalStrings().copyContent).onClick(() => {
+
+
+		let menuManager = new MenuManager()
+
+		menuManager.setMenuClassName("callout-menu")
+
+		
+
+		
+
+		
+
+		menuManager.addItemAfter(['edit'], (item) =>
+			item.setTitle(i18n.t("copyContent"))
+				.setSection('edit')
+				.onClick(() => {
 				lines.shift()
 				let content = ""
 				for (const l of lines) {
@@ -284,56 +236,41 @@ export default class CalloutMenuPlugin extends Plugin {
 			})
 		);
 
-		menu.addSeparator();
+
+
+
+		
 
 		if (link && link.className){
 
-			menu.addItem((item) =>
-				item.setTitle(this.getLocalStrings().copyLinkText).onClick(() => {
-					navigator.clipboard.writeText(link.innerText)
-				})
-			);
+			
 
-			if (link.className.includes("external-link")) {		
-
-				menu.addItem((item) =>
-					item.setTitle(this.getLocalStrings().copyLinkURL).onClick(() => {
-						navigator.clipboard.writeText(link.href)
-					})
-				);
-				menu.addItem((item) =>
-					item.setTitle(this.getLocalStrings().openInDefaultBrowser).onClick(() => {
-						//@ts-ignore
-						let webviewer = this.app.internalPlugins.getEnabledPluginById("webviewer");
-						if (webviewer) {
-							webviewer.openUrlExternally(link.href)
-						} else {
-							window.open(link.href)
-						}
-					})
-				);
-			}
+			
 
 			if (link.className.includes("internal-link")) {		
-				menu.addItem((item) =>
-					item.setTitle(this.getLocalStrings().copyLinkPath).onClick(() => {
+				menuManager.addItemAfter(['edit'], (item) =>
+					item.setTitle(i18n.t("copyLinkPath"))
+					.setSection('clipboard')
+					.onClick(() => {
 						let linkPath = link.getAttribute("data-href") || ""
 						navigator.clipboard.writeText(linkPath)
 					})
 				);
 			}
-			menu.addSeparator();
+			
 		}
 
 		
 
-		
+
+
 
 		// Добавить или убрать сворачивание
 		if (calloutClasses.contains("is-collapsible") && fold == "-") {
-			menu.addItem((item) => {
-				item.setTitle(this.getLocalStrings().expanded)
+			menuManager.addItemAfter(['edit'], (item) => {
+				item.setTitle(i18n.t("expanded"))
 					.setIcon("plus")
+					.setSection('collapse')
 					.onClick(() => {
 						editor.setLine(
 							lineNumStart,
@@ -341,9 +278,10 @@ export default class CalloutMenuPlugin extends Plugin {
 						);
 					});
 			});
-			menu.addItem((item) => {
-				item.setTitle(this.getLocalStrings().removeCollapsing)
+			menuManager.addItemAfter(['edit'], (item) => {
+				item.setTitle(i18n.t("removeCollapsing"))
 					.setIcon("x")
+					.setSection('collapse')
 					.onClick(() => {
 						editor.setLine(
 							lineNumStart,
@@ -355,9 +293,10 @@ export default class CalloutMenuPlugin extends Plugin {
 			calloutClasses.contains("is-collapsible") &&
 			fold == "+"
 		) {
-			menu.addItem((item) => {
-				item.setTitle(this.getLocalStrings().collapsed)
+			menuManager.addItemAfter(['edit'], (item) => {
+				item.setTitle(i18n.t("collapsed"))
 					.setIcon("minus")
+					.setSection('collapse')
 					.onClick(() => {
 						editor.setLine(
 							lineNumStart,
@@ -365,9 +304,10 @@ export default class CalloutMenuPlugin extends Plugin {
 						);
 					});
 			});
-			menu.addItem((item) => {
-				item.setTitle(this.getLocalStrings().removeCollapsing)
+			menuManager.addItemAfter(['edit'], (item) => {
+				item.setTitle(i18n.t("removeCollapsing"))
 					.setIcon("x")
+					.setSection('collapse')
 					.onClick(() => {
 						editor.setLine(
 							lineNumStart,
@@ -376,9 +316,10 @@ export default class CalloutMenuPlugin extends Plugin {
 					});
 			});
 		} else {
-			menu.addItem((item) => {
-				item.setTitle(this.getLocalStrings().collapsed)
+			menuManager.addItemAfter(['edit'], (item) => {
+				item.setTitle(i18n.t("collapsed"))
 					.setIcon("minus")
+					.setSection('collapse')
 					.onClick(() => {
 						editor.setLine(
 							lineNumStart,
@@ -386,9 +327,10 @@ export default class CalloutMenuPlugin extends Plugin {
 						);
 					});
 			});
-			menu.addItem((item) => {
-				item.setTitle(this.getLocalStrings().expanded)
+			menuManager.addItemAfter(['edit'], (item) => {
+				item.setTitle(i18n.t("expanded"))
 					.setIcon("plus")
+					.setSection('collapse')
 					.onClick(() => {
 						editor.setLine(
 							lineNumStart,
@@ -398,10 +340,12 @@ export default class CalloutMenuPlugin extends Plugin {
 			});
 		}
 
-		menu.addSeparator();
+
+
+
 		if (Platform.isMobile) {
 			for (const calloutName of calloutNames) {
-				menu.addItem((item) => {
+				menuManager.addItem((item) => {
 					const title =
 						calloutName[0].toUpperCase() +
 						calloutName
@@ -415,21 +359,9 @@ export default class CalloutMenuPlugin extends Plugin {
 				});
 			}
 
-			menu.addItem((item) => {
-				const title = this.getLocalStrings().other;
-				item.setTitle(title).onClick(async () => {
-					const defCalloutName = await this.calloutSuggester(
-						calloutNamesDafault
-					);
-					calloutEl.cmView.widget.updateType(defCalloutName);
-				});
-			});
-
-			menu.addSeparator();
-
 			if (notExistingMetadata.length > 0) {
 				for (const metaName of notExistingMetadata) {
-					menu.addItem((item) => {
+					menuManager.addItem((item) => {
 						const title =
 							metaName[0].toUpperCase() +
 							metaName
@@ -447,11 +379,11 @@ export default class CalloutMenuPlugin extends Plugin {
 				}
 			}
 
-			menu.addSeparator();
+			
 
 			if (existingMetadata.length > 0) {
 				for (const metaName of existingMetadata) {
-					menu.addItem((item) => {
+					menuManager.addItem((item) => {
 						const title =
 							metaName[0].toUpperCase() +
 							metaName
@@ -469,8 +401,9 @@ export default class CalloutMenuPlugin extends Plugin {
 				}
 			}
 		} else {
-			menu.addItem((item) => {
-				item.setTitle(this.getLocalStrings().calloutType);
+			menuManager.addItemAfter("type",(item) => {
+				item.setTitle(i18n.t("calloutType"))
+				.setSection('custom-type')
 				//@ts-ignore
 				const sub = item.setSubmenu();
 				sub.dom.classList.add("callout-menu");
@@ -492,7 +425,7 @@ export default class CalloutMenuPlugin extends Plugin {
 				}
 
 				sub.addItem((item: MenuItem) => {
-					const title = this.getLocalStrings().other;
+					const title = i18n.t("other");
 					item.setTitle(title).onClick(async () => {
 						const defCalloutName = await this.calloutSuggester(
 							calloutNamesDafault
@@ -500,11 +433,14 @@ export default class CalloutMenuPlugin extends Plugin {
 						calloutEl.cmView.widget.updateType(defCalloutName);
 					});
 				});
+
+				
 			});
 
 			if (notExistingMetadata.length > 0) {
-				menu.addItem((item) => {
-					item.setTitle(this.getLocalStrings().addMetadata);
+				menuManager.addItemAfter("type", (item) => {
+					item.setTitle(i18n.t("addMetadata"))
+					.setSection('custom-type')
 					//@ts-ignore
 					const sub = item.setSubmenu();
 					sub.dom.classList.add("callout-menu");
@@ -527,8 +463,9 @@ export default class CalloutMenuPlugin extends Plugin {
 			}
 
 			if (existingMetadata.length > 0) {
-				menu.addItem((item) => {
-					item.setTitle(this.getLocalStrings().removeMetadata);
+				menuManager.addItem((item) => {
+					item.setTitle(i18n.t("removeMetadata"))
+					.setSection('custom-type')
 					//@ts-ignore
 					const sub = item.setSubmenu();
 					sub.dom.classList.add("callout-menu");
@@ -551,12 +488,15 @@ export default class CalloutMenuPlugin extends Plugin {
 			}
 		}
 
-		menu.addSeparator();
 
-		menu.addItem((item) =>
+
+
+
+		menuManager.addItem((item) =>
 			item
-				.setTitle(this.getLocalStrings().clearFormatting)
+				.setTitle(i18n.t("clearFormatting"))
 				.setIcon("eraser")
+				.setSection("clear")
 				.onClick(() => {
 					for (const l of lines) {
 						const line = editor.getLine(l);
@@ -574,28 +514,23 @@ export default class CalloutMenuPlugin extends Plugin {
 				})
 		);
 
-		menu.showAtMouseEvent(e as MouseEvent);
-		//@ts-ignore
-		menu.dom.classList.add("callout-menu");
+
+
+		
+
+
+		
 	}
 
 	async calloutSuggester(values: string[]) {
-		const placeholder = this.getLocalStrings().calloutTypePlaceholder;
+		const placeholder = i18n.t("calloutTypePlaceholder");
 		const data = new Promise((resolve, reject) => {
 			new Suggest(this.app, resolve, reject, values, placeholder).open();
 		});
 		return data;
 	}
 
-	getLocalStrings() {
-		const lang: string = window.localStorage.getItem("language") ?? "en";
-		const localStrings = { ...LocaleMap };
-		for (const key in localStrings) {
-			const stringValues = localStrings[key];
-			localStrings[key] = stringValues[lang] ?? stringValues["en"];
-		}
-		return localStrings;
-	}
+	
 }
 
 class Suggest extends FuzzySuggestModal<string> {
@@ -646,8 +581,8 @@ class CMSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName(this.plugin.getLocalStrings().calloutTypes)
-			.setDesc(this.plugin.getLocalStrings().calloutTypesDesc)
+			.setName(i18n.t("calloutTypes"))
+			.setDesc(i18n.t("calloutTypesDesc"))
 			.addTextArea((text) =>
 				text
 					.setValue(this.plugin.settings.types)
@@ -658,8 +593,8 @@ class CMSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName(this.plugin.getLocalStrings().metadataTypes)
-			.setDesc(this.plugin.getLocalStrings().metadataTypesDesc)
+			.setName(i18n.t("metadataTypes"))
+			.setDesc(i18n.t("metadataTypesDesc"))
 			.addTextArea((text) =>
 				text
 					.setValue(this.plugin.settings.metaTypes)

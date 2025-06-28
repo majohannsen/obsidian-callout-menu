@@ -1,9 +1,17 @@
 
-
-
-body:has(.menu.callout-menu) .menu:not(.callout-menu):has([data-section="edit"]) {
-    display: none;
+.menu.callout-menu.mod-no-icon .menu-item[data-section="collapse"] .menu-item-icon:first-child,
+.menu.callout-menu.mod-no-icon .menu-item[data-section="clear"] .menu-item-icon:first-child {
+    display: flex;
 }
+
+
+.menu.callout-menu.mod-no-icon .menu-item:not([data-section]),
+.menu.callout-menu.mod-no-icon .menu-item:not([data-section]) + div.menu-separator {
+    display: none !important;
+}
+    
+    
+
 
 .callout[data-callout-metadata*="no-icon"] .callout-icon {
     display: none;

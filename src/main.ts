@@ -214,7 +214,7 @@ export default class CalloutMenuPlugin extends Plugin {
 
 		
 
-		menuManager.addItemAfter(['edit'], (item) =>
+		menuManager.addItemAfter(['edit'], i18n.t("copyContent"), (item) =>
 			item.setTitle(i18n.t("copyContent"))
 				.setSection('edit')
 				.onClick(() => {
@@ -243,7 +243,7 @@ export default class CalloutMenuPlugin extends Plugin {
 			
 
 			if (link.className.includes("internal-link")) {		
-				menuManager.addItemAfter(['edit'], (item) =>
+				menuManager.addItemAfter(['edit'], i18n.t("copyLinkPath"), (item) =>
 					item.setTitle(i18n.t("copyLinkPath"))
 					.setSection('clipboard')
 					.onClick(() => {
@@ -262,7 +262,7 @@ export default class CalloutMenuPlugin extends Plugin {
 
 		// Добавить или убрать сворачивание
 		if (calloutClasses.contains("is-collapsible") && fold == "-") {
-			menuManager.addItemAfter(['edit'], (item) => {
+			menuManager.addItemAfter(['edit'], i18n.t("expanded"), (item) => {
 				item.setTitle(i18n.t("expanded"))
 					.setIcon("plus")
 					.setSection('collapse')
@@ -273,7 +273,7 @@ export default class CalloutMenuPlugin extends Plugin {
 						);
 					});
 			});
-			menuManager.addItemAfter(['edit'], (item) => {
+			menuManager.addItemAfter(['edit'], i18n.t("removeCollapsing"), (item) => {
 				item.setTitle(i18n.t("removeCollapsing"))
 					.setIcon("x")
 					.setSection('collapse')
@@ -288,7 +288,7 @@ export default class CalloutMenuPlugin extends Plugin {
 			calloutClasses.contains("is-collapsible") &&
 			fold == "+"
 		) {
-			menuManager.addItemAfter(['edit'], (item) => {
+			menuManager.addItemAfter(['edit'], i18n.t("collapsed"), (item) => {
 				item.setTitle(i18n.t("collapsed"))
 					.setIcon("minus")
 					.setSection('collapse')
@@ -299,7 +299,7 @@ export default class CalloutMenuPlugin extends Plugin {
 						);
 					});
 			});
-			menuManager.addItemAfter(['edit'], (item) => {
+			menuManager.addItemAfter(['edit'], i18n.t("removeCollapsing"), (item) => {
 				item.setTitle(i18n.t("removeCollapsing"))
 					.setIcon("x")
 					.setSection('collapse')
@@ -311,7 +311,7 @@ export default class CalloutMenuPlugin extends Plugin {
 					});
 			});
 		} else {
-			menuManager.addItemAfter(['edit'], (item) => {
+			menuManager.addItemAfter(['edit'], i18n.t("collapsed"), (item) => {
 				item.setTitle(i18n.t("collapsed"))
 					.setIcon("minus")
 					.setSection('collapse')
@@ -322,7 +322,7 @@ export default class CalloutMenuPlugin extends Plugin {
 						);
 					});
 			});
-			menuManager.addItemAfter(['edit'], (item) => {
+			menuManager.addItemAfter(['edit'], i18n.t("expanded"), (item) => {
 				item.setTitle(i18n.t("expanded"))
 					.setIcon("plus")
 					.setSection('collapse')
@@ -340,12 +340,14 @@ export default class CalloutMenuPlugin extends Plugin {
 
 		if (Platform.isMobile) {
 			for (const calloutName of calloutNames) {
-				menuManager.addItemAfter("type", (item) => {
-					const title =
-						calloutName[0].toUpperCase() +
-						calloutName
-							.slice(1, calloutName.length)
-							.replace("|", " | ");
+
+				const title =
+					calloutName[0].toUpperCase() +
+					calloutName
+						.slice(1, calloutName.length)
+						.replace("|", " | ");
+
+				menuManager.addItemAfter("type", title, (item) => {
 					item.setTitle(title)
 						.setSection("custom-type")
 						.onClick(() => {
@@ -359,12 +361,12 @@ export default class CalloutMenuPlugin extends Plugin {
 
 			if (notExistingMetadata.length > 0) {
 				for (const metaName of notExistingMetadata) {
-					menuManager.addItemAfter("custom-type", (item) => {
-						const title =
-							metaName[0].toUpperCase() +
-							metaName
-								.slice(1, metaName.length)
-								.replace("|", " | ");
+					const title =
+						metaName[0].toUpperCase() +
+						metaName
+							.slice(1, metaName.length)
+							.replace("|", " | ");
+					menuManager.addItemAfter("custom-type", title, (item) => {
 						item.setTitle(title)
 							.setSection("custom-type-metadata")
 							.setIcon("plus")
@@ -382,12 +384,13 @@ export default class CalloutMenuPlugin extends Plugin {
 
 			if (existingMetadata.length > 0) {
 				for (const metaName of existingMetadata) {
-					menuManager.addItemAfter("custom-type", (item) => {
-						const title =
-							metaName[0].toUpperCase() +
-							metaName
-								.slice(1, metaName.length)
-								.replace("|", " | ");
+					const title =
+						metaName[0].toUpperCase() +
+						metaName
+							.slice(1, metaName.length)
+							.replace("|", " | ");
+							
+					menuManager.addItemAfter("custom-type", title, (item) => {
 						item.setTitle(title)
 							.setSection("custom-type-metadata")
 							.setIcon("minus")
@@ -411,7 +414,7 @@ export default class CalloutMenuPlugin extends Plugin {
 
 
 		} else {
-			menuManager.addItemAfter("type",(item) => {
+			menuManager.addItemAfter("type", i18n.t("calloutType"), (item) => {
 				item.setTitle(i18n.t("calloutType"))
 				.setSection('custom-type')
 				//@ts-ignore
@@ -448,7 +451,7 @@ export default class CalloutMenuPlugin extends Plugin {
 			});
 
 			if (notExistingMetadata.length > 0) {
-				menuManager.addItemAfter("type", (item) => {
+				menuManager.addItemAfter("type", i18n.t("addMetadata"), (item) => {
 					item.setTitle(i18n.t("addMetadata"))
 					.setSection('custom-type')
 					//@ts-ignore

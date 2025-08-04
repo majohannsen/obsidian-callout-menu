@@ -46,29 +46,32 @@ export default class MenuManager {
 	/**
 	 * Add a menu item after the given sections, prioritized by array order.
 	 */
-	addItemAfter(preSections: string | string[], callback: (item: MenuItem) => void): this {
-		//@ts-ignore
-		if (this.menu/* && !this.menu.parentMenu*/) {
+	addItemAfter(preSections: string | string[], itemTitle: string, callback: (item: MenuItem) => void): this {
+		if (this.menu) {
 
-			
+			// Check if item with this name already exist
 
+			//@ts-ignore
+			let items = this.menu.items
+			let existingItem = null
+			if (items) {
+				existingItem = items.find((i: MenuItem) => {
+					//@ts-ignore
+					let titleEl = i.titleEl
+					if (titleEl) return titleEl.innerText == itemTitle
+					return false
+				})
+			}
+
+			if (existingItem) return this
 			if (typeof preSections === 'string') preSections = [preSections];
 
 			this.menu.addItem(item => {
-
-
 				callback(item);
-
-
-
-
 				// @ts-expect-error (Private API)
 				const section: string = item.section;
 				// @ts-expect-error (Private API)
 				const sections: string[] = this.menu?.sections ?? [];
-
-
-				
 
 				
 
@@ -76,24 +79,16 @@ export default class MenuManager {
 				for (const preSection of preSections) {
 					
 					if (sections.includes(preSection)) {
-
-						
 						index = sections.lastIndexOf(preSection) + 1;
 						break;
 					}
 				}
 				sections.remove(section);
 				sections.splice(index, 0, section);
-
-				
 			});
 
-
-			
-
-
 		} else {
-			this.queuedActions.push(() => this.addItemAfter(preSections, callback));
+			this.queuedActions.push(() => this.addItemAfter(preSections, itemTitle, callback));
 		}
 		return this;
 	}

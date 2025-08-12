@@ -1,7 +1,7 @@
 
 export default {
   collapsed: "Collapsed by default",
-  expanded: "",
+  expanded: "Expanded by default",
   removeCollapsing: "Remove collapsing",
   calloutType: "Callout type",
   calloutTypePlaceholder: "Callout type...",

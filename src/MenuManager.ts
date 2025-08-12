@@ -43,6 +43,34 @@ export default class MenuManager {
 		return this;
 	}
 
+
+
+
+
+
+
+	/* Remove menu section */
+
+	removeSection(section: string): this {
+		if (this.menu) {
+			//@ts-ignore
+			delete this.menu.submenuConfigs[section]
+			//@ts-ignore
+			this.menu.items = this.menu.items.filter(item => {
+				return item.section != section
+			})
+			
+		} else {
+			this.queuedActions.push(() => this.removeSection(section));
+		}
+		return this;
+	}
+
+
+
+
+	
+
 	/**
 	 * Add a menu item after the given sections, prioritized by array order.
 	 */

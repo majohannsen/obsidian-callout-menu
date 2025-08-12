@@ -43,6 +43,11 @@ export default class CalloutMenuPlugin extends Plugin {
 		this.addSettingTab(new CMSettingTab(this.app, this));
 
 
+
+
+		
+
+
 		if (Platform.isDesktop) {
 			this.registerDomEvent(window, "contextmenu", (e: MouseEvent) => {
 				
@@ -207,12 +212,10 @@ export default class CalloutMenuPlugin extends Plugin {
 		let menuManager = new MenuManager()
 
 		menuManager.setMenuClassName("callout-menu")
+		menuManager.removeSection(i18n.t("type"))
 
 		
 
-		
-
-		
 
 		menuManager.addItemAfter(['edit'], i18n.t("copyContent"), (item) =>
 			item.setTitle(i18n.t("copyContent"))
@@ -526,6 +529,9 @@ export default class CalloutMenuPlugin extends Plugin {
 					}
 				})
 		);
+
+
+		
 
 
 

@@ -4,14 +4,7 @@
     display: flex;
 }
 
-.menu.callout-menu.mod-no-icon .menu-item:not([data-section]),
-.menu.callout-menu.mod-no-icon .menu-item:not([data-section]) + div.menu-separator,
-.menu.callout-menu.mod-no-icon .menu-item[data-section="type"],
-.menu.callout-menu.mod-no-icon .menu-item[data-section="type"] + div.menu-separator {
-    display: none !important;
-}
     
-
 .callout[data-callout-metadata*="no-icon"] .callout-icon {
     display: none;
 }
@@ -19,3 +12,8 @@
 .callout[data-callout-metadata*="no-title"] .callout-title {
     display: none;
 }
+
+.callout[data-callout-metadata*="no-border"] {
+    border: none;
+}
+

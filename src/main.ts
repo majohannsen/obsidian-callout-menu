@@ -27,6 +27,7 @@ const DEFAULT_SETTINGS: CMSettings = {
 
 export default class CalloutMenuPlugin extends Plugin {
 	settings: CMSettings;
+	menuManager: MenuManager
 
 	async onload() {
 
@@ -40,6 +41,7 @@ export default class CalloutMenuPlugin extends Plugin {
     	i18n.setLocale(locale);
 
 		await this.loadSettings();
+		this.menuManager = new MenuManager
 		this.addSettingTab(new CMSettingTab(this.app, this));
 
 
@@ -209,7 +211,8 @@ export default class CalloutMenuPlugin extends Plugin {
 
 
 
-		let menuManager = new MenuManager()
+		let menuManager = this.menuManager
+        menuManager.closeAndFlush()
 
 		menuManager.setMenuClassName("callout-menu")
 		menuManager.removeSection(i18n.t("type"))

@@ -42,9 +42,10 @@ const editCalloutMenu = async (plugin: CalloutMenuPlugin, menu: Menu, target: HT
 
     //@ts-ignore
     delete menu.submenuConfigs[""]
+	delete menu.submenuConfigs["type"]
     //@ts-ignore
     menu.items = menu.items.filter(item => {
-        return item.section != ""
+        return item.section != "" && item.section != "type"
     })
         
 

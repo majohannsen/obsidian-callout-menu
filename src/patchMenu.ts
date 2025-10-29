@@ -11,14 +11,14 @@ export const patchMenu = async (plugin: CalloutMenuPlugin) => {
       return dedupe("pp-patch-menu-around-key", old, function(...args) {
 		let e = args[0]
 		let target = e.target as HTMLElement
-		let menu = old && old.apply(this, args)
+		let menu = this
 
         if (target.closest(".cm-callout")) {
             editCalloutMenu(plugin, menu, target)
 
         }
         
-        return old && old.apply(this, args)
+        return old && old.apply(menu, args)
       })
     }    
   })
@@ -36,17 +36,14 @@ const calloutSuggester = async (plugin: CalloutMenuPlugin, values: string[]) => 
 
 
 const editCalloutMenu = async (plugin: CalloutMenuPlugin, menu: Menu, target: HTMLElement) => {
-
     //@ts-ignore
     menu?.dom?.classList.add("callout-menu")
 
     //@ts-ignore
-    delete menu.submenuConfigs[""]
-	//@ts-ignore
-	delete menu.submenuConfigs["type"]
+    delete menu.submenuConfigs["type"]
     //@ts-ignore
     menu.items = menu.items.filter(item => {
-        return item.section != "" && item.section != "type"
+        return item.section != "type"
     })
         
 

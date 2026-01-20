@@ -4,6 +4,20 @@
     display: flex;
 }
 
+.menu.callout-menu .menu-item[data-callout-color] {
+    --menu-item-hover-bg: var(--callout-bg-color);
+}
+
+.menu.callout-menu .menu-item[data-callout-color]:hover,
+.menu.callout-menu .menu-item[data-callout-color].selected {
+    background-color: var(--callout-bg-color) !important;
+}
+
+.menu.callout-menu div[data-callout-color]:hover,
+.menu.callout-menu div[data-callout-color].selected {
+    background-color: var(--callout-bg-color) !important;
+}
+
     
 .callout[data-callout-metadata*="no-icon"] .callout-icon {
     display: none;

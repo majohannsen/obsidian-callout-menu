@@ -1,6 +1,6 @@
 {
-	"id": "callout-menu",
-	"name": "Callout menu",
+	"id": "my-callout-menu",
+	"name": "Callout menu (dev)",
 	"version": "1.2.7",
 	"minAppVersion": "1.6.7",
 	"description": "Adds some extra options to callouts context menu and allows you to add your own custom callouts.",

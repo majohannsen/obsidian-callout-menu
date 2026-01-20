@@ -1,4 +1,5 @@
-import { App, FuzzyMatch, FuzzySuggestModal } from "obsidian";
+import { App, FuzzyMatch, FuzzySuggestModal, setIcon } from "obsidian";
+import { getCalloutColor, getCalloutIcon } from "./patchMenu";
 
 
 export class Suggest extends FuzzySuggestModal<string> {
@@ -28,7 +29,29 @@ export class Suggest extends FuzzySuggestModal<string> {
 	}
 	renderSuggestion(val: FuzzyMatch<string>, el: Element) {
 		const text = val.item;
-		el.createEl("div", { text: text });
+		const container = el.createEl("div", { cls: "suggestion-content" });
+		container.style.display = "flex";
+		container.style.alignItems = "center";
+		container.style.gap = "8px";
+		
+		const iconEl = container.createEl("span", { cls: "suggestion-icon" });
+		setIcon(iconEl, getCalloutIcon(val.item));
+		
+		container.createEl("span", { text: text });
+		
+		// Apply callout color background if available
+		const itemDom = el as HTMLElement;
+		const calloutName = val.item;
+		const calloutColor = getCalloutColor(calloutName);
+		if (calloutColor) {
+			itemDom.style.background = `rgba(${calloutColor}, 0.2)`;
+			itemDom.addEventListener("mouseenter", () => {
+				itemDom.style.background = `linear-gradient(var(--background-modifier-hover), var(--background-modifier-hover)), rgba(${calloutColor}, 0.2)`;
+			});
+			itemDom.addEventListener("mouseleave", () => {
+				itemDom.style.background = `rgba(${calloutColor}, 0.2)`;
+			});
+		}
 	}
 	onChooseItem(val: string) {
 		this.resolve(val);
